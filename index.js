@@ -20,6 +20,12 @@ const storeTaskInLocalStorage = (task) => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
 };
 
+const editTaskInLocalStorage = (editedIndex, newText) => {
+  const tasks = getTasksFromLocalStorage();
+  tasks[editedIndex] = newText;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+  };
+
 const removeTaskFromLocalStorage = (deletedIndex) => {
   const tasks = getTasksFromLocalStorage();
   tasks.splice(deletedIndex, 1);
@@ -83,10 +89,29 @@ const addTask = (event) => {
 
 };
 
+const editTask = (event) => {
+  const isEditIcon = event.target.classList.contains("fa-pencil");
+  
+  if (isEditIcon) {
+    const editedLi = event.target.closest("li");
+    const tasks = Array.from(taskList.children);
+    const editedIndex = tasks.indexOf(editedLi);
+    const editedTask = editedLi.firstChild;
+    const editedText = editedTask.textContent.trim();
+    const newText = prompt("Редагувати завдання", editedText);
+      
+    if (newText !== null && newText !== "") {
+        editedTask.textContent = newText;
+
+        editTaskInLocalStorage(editedIndex, newText);
+      }
+
+  }
+};
+
 const removeTask = (event) => {
   const isDeleteIcon = event.target.classList.contains("fa-remove");
-  const isEditIcon = event.target.classList.contains("fa-pencil");
-
+  
   if (isDeleteIcon) {
     const isApproved = confirm("Ви впевнені що хочете видалити це завдання?");
 
@@ -99,24 +124,7 @@ const removeTask = (event) => {
       removeTaskFromLocalStorage(deletedIndex);
     }
   }
-
-  if (isEditIcon) {
-    const editedLi = event.target.closest("li");
-    const tasks = Array.from(taskList.children);
-    const editedIndex = tasks.indexOf(editedLi);
-    const editedTask = editedLi.firstChild;
-    const editedText = editedTask.textContent.trim();
-    const newText = prompt("Редагувати завдання", editedText);
-
-    if (newText !== null && newText !== "") {
-      editedTask.textContent = newText;
-      const tasks = getTasksFromLocalStorage();
-      tasks[editedIndex] = newText;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-    }
-  }
 };
-
 
 const clearTasks = () => {
   taskList.innerHTML = "";
@@ -143,6 +151,8 @@ getTasks();
 form.addEventListener("submit", addTask);
 
 taskList.addEventListener("click", removeTask);
+
+taskList.addEventListener("click", editTask);
 
 clearButton.addEventListener("click", clearTasks);
 
